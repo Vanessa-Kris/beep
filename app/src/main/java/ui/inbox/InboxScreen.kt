@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,23 +17,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.FilterNone
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.ui.draw.clip
+import androidx.compose.runtime.setValue
+import androidx.navigation.NavController
+import kotlinx.coroutines.launch
+import ui.components.ChatFilter
 import ui.components.ComposeSheetContent
-import ui.components.Platform
-import java.lang.Thread
-import kotlin.text.get
+import ui.components.DrawerContent
+import ui.model.Platform
+import ui.settings.SettingsScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InboxScreen(
     onThreadClick: (String) -> Unit,
+    navController: NavController,
     onComposeClick: () -> Unit = {}
 ) {
     var query by remember { mutableStateOf("") }
@@ -42,22 +43,64 @@ fun InboxScreen(
     var showComposeSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     var selectedTab by remember { mutableStateOf(0) }
+    var selectedFilter by remember { mutableStateOf(ChatFilter.ALL_CHATS) }
+    var showSettingsSheet by remember { mutableStateOf(false) }
+    val settingsSheetState = rememberModalBottomSheetState()
+
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     var threads by remember {
         mutableStateOf(
             listOf(
-        Thread("Kehinde Omobaba", "Check your mails asap", "Yesterday", ui.model.Platform.SIGNAL),
-        Thread("Alice", "Hey, how are you?", "09:45AM", ui.model.Platform.SIGNAL),
-        Thread("Bob", "See you later", "9:00AM", ui.model.Platform.TELEGRAM),
-        Thread("Mom", "Call me pls", "6:00AM", ui.model.Platform.TELEGRAM),
-        Thread("Yaya", "I could have never guessed ...", "Yesterday", ui.model.Platform.SIGNAL),
-        Thread("Yager", "Change up quickly", "Yesterday", ui.model.Platform.TELEGRAM),
-        Thread("Max", "We scheduled it for April 13th", "Saturday", ui.model.Platform.TELEGRAM),
-        Thread("Will Byers", "I've literally been missing for 2 months", "Friday", ui.model.Platform.SIGNAL),
+        Thread("Kehinde Omobaba", "Check your mails asap", "Yesterday", Platform.SIGNAL),
+        Thread("Alice", "Hey, how are you?", "09:45AM", Platform.SIGNAL),
+        Thread("Bob", "See you later", "9:00AM", Platform.TELEGRAM),
+        Thread("Mom", "Call me pls", "6:00AM", Platform.TELEGRAM),
+        Thread("Yaya", "I could have never guessed ...", "Yesterday", Platform.SIGNAL),
+        Thread("Yager", "Change up quickly", "Yesterday", Platform.TELEGRAM),
+        Thread("Max", "We scheduled it for April 13th", "Saturday", Platform.TELEGRAM),
+        Thread("Will Byers", "I've literally been missing for 2 months", "Friday", Platform.SIGNAL),
             )
         )
     }
 
+    val filteredThreads = threads.filter { thread ->
+        val matchesSearch = thread.name.contains(query, ignoreCase = true) ||
+                thread.lastMessage.contains(query, ignoreCase = true)
+
+        val matchesFilter = when (selectedFilter) {
+            ChatFilter.ALL_CHATS -> true
+            ChatFilter.SIGNAL -> thread.platform == Platform.SIGNAL
+            ChatFilter.TELEGRAM -> thread.platform == Platform.TELEGRAM
+        }
+
+        matchesSearch && matchesFilter
+    }
+
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                modifier = Modifier.fillMaxWidth(0.75f)
+            ) {
+                DrawerContent(
+                    selectedFilter = selectedFilter,
+                    onFilterSelected = { selectedFilter = it },
+                    onAddNetwork = { /* Handle add network */ },
+                    onSettings = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        navController.navigate("settings")
+                    },
+                    onClose = { scope.launch { drawerState.close() } }
+                )
+            }
+        }
+    ) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -69,8 +112,9 @@ fun InboxScreen(
                         Text("Chats")
                     }
                 },
+                windowInsets = TopAppBarDefaults.windowInsets,
                 navigationIcon = {
-                    IconButton(onClick = { /* settings / stacks */ }) {
+                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
                         Icon(
                             imageVector = Icons.Outlined.FilterNone,
                             contentDescription = "Settings",
@@ -95,6 +139,7 @@ fun InboxScreen(
                 }
             )
         },
+
         bottomBar = {
             Surface {
                 Row(
@@ -130,8 +175,9 @@ fun InboxScreen(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    IconButton(
+                    SmallFloatingActionButton(
                         onClick = { showComposeSheet = true },
+                        shape = CircleShape,
                         modifier = Modifier
                             .size(48.dp)
                             .background(
@@ -152,6 +198,7 @@ fun InboxScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(padding)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
@@ -162,7 +209,6 @@ fun InboxScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
             ) {
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp)
@@ -179,13 +225,12 @@ fun InboxScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
+//                        .imePadding(),
+                contentPadding = PaddingValues(bottom = 8.dp)
                 ) {
                     items(
-                        threads.filter {
-                            it.name.contains(query, ignoreCase = true) ||
-                                    it.lastMessage.contains(query, ignoreCase = true)
-                        },
+                        filteredThreads,
                         key = { it.name }
                     ) { thread ->
                         ThreadItem(
@@ -203,11 +248,12 @@ fun InboxScreen(
             }
         }
     }
-
+}
     if (showComposeSheet) {
         ModalBottomSheet(
             onDismissRequest = { showComposeSheet = false },
-            sheetState = sheetState
+            sheetState = sheetState,
+            modifier = Modifier.fillMaxHeight(0.75f)
         ) {
             ComposeSheetContent(
                 onStartChat = { name ->
@@ -297,5 +343,5 @@ data class Thread(
     val name: String,
     val lastMessage: String,
     val time: String,
-    val platform: ui.model.Platform
+    val platform: Platform
 )

@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.beep.ui.theme.BeepTheme
 import ui.chat.ChatScreen
 import ui.inbox.InboxScreen
+import ui.settings.SettingsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,14 +37,22 @@ fun AppNavigation() {
 
     NavHost(navController = navController, startDestination = "inbox") {
         composable("inbox") {
-            InboxScreen(onThreadClick = { threadName ->
-                navController.navigate("chat/$threadName")
-            })
+            InboxScreen(
+                onThreadClick = { threadName ->
+                    navController.navigate("chat/$threadName")
+                },
+                navController = navController
+            )
         }
         composable("chat/{threadName}") { backStackEntry ->
             val threadName = backStackEntry.arguments?.getString("threadName") ?: ""
             ChatScreen(
                 threadName = threadName,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable("settings") {
+            SettingsScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }

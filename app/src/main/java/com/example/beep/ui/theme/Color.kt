@@ -11,7 +11,7 @@ val BlueTertiary = Color(0xFF0288D1)
 
 val LightBackground = Color(0xFFFFFFFF)
 val LightSurface = Color(0xFFFFFFFF)
-val LightSurfaceVariant = Color(0xFFF5F5F5)
+val LightSurfaceVariant = Color(0xFFE3EBF1)
 
 // Dark theme - Cool Blue
 val DarkBluePrimary = Color(0xFF4FC3F7)
