@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.beep.R
@@ -42,7 +43,7 @@ fun DrawerContent(
     ) {
 
         Text(
-            text = "Beep",
+            text = (stringResource(R.string.app_name)),
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.Bold
             ),
@@ -53,7 +54,7 @@ fun DrawerContent(
 
         DrawerMenuItem(
             icon = painterResource(id = R.drawable.inbox),
-            label = "All chats",
+            label = (stringResource(R.string.all_chats)),
             selected = selectedFilter == ChatFilter.ALL_CHATS,
             onClick = {
                 onFilterSelected(ChatFilter.ALL_CHATS)
@@ -63,7 +64,7 @@ fun DrawerContent(
 
         DrawerMenuItemWithPlatform(
             platform = Platform.SIGNAL,
-            label = "Signal",
+            label = (stringResource(R.string.signal)),
             selected = selectedFilter == ChatFilter.SIGNAL,
             onClick = {
                 onFilterSelected(ChatFilter.SIGNAL)
@@ -73,7 +74,7 @@ fun DrawerContent(
 
         DrawerMenuItemWithPlatform(
             platform = Platform.TELEGRAM,
-            label = "Telegram",
+            label = (stringResource(R.string.telegram)),
             selected = selectedFilter == ChatFilter.TELEGRAM,
             onClick = {
                 onFilterSelected(ChatFilter.TELEGRAM)
@@ -83,7 +84,7 @@ fun DrawerContent(
 
         DrawerMenuItem(
             icon = Icons.Default.Add,
-            label = "Add network",
+            label = (stringResource(R.string.add_network)),
             selected = false,
             onClick = {
                 onAddNetwork()
@@ -103,7 +104,7 @@ fun DrawerContent(
 
         DrawerMenuItem(
             icon = Icons.Default.Settings,
-            label = "Settings",
+            label = (stringResource(R.string.settings)),
             selected = false,
             onClick = {
                 onSettings()

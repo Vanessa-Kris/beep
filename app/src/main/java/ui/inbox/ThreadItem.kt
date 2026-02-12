@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ui.components.Avatar
 import ui.components.Platform
+import com.example.beep.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +71,7 @@ fun ThreadItem(
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
+                    contentDescription = (stringResource(R.string.delete)),
                     tint = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.scale(iconScale)
                 )

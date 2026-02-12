@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Beep</string>
+    <string name="chats">Discussions</string>
+    <string name="inbox">Boîte de réception</string>
+    <string name="archive">Archive</string>
+    <string name="search_chats">Rechercher des discussions</string>
+    <string name="search_contacts">Rechercher des contacts</string>
+    <string name="yesterday">Hier</string>
+    <string name="saturday">Samedi</string>
+    <string name="sunday">Dimanche</string>
+    <string name="friday">Vendredi</string>
+    <string name="settings">Paramètres</string>
+    <string name="all_chats">Toutes les discussions</string>
+    <string name="add_network">Ajouter un réseau</string>
+    <string name="new_message">Nouveau message</string>
+    <string name="message">Message</string>
+    <string name="filter">Filtre</string>
+    <string name="compose">Composer</string>
+    <string name="delete">Supprimer</string>
+    <string name="close">Fermer</string>
+    <string name="phone_number">Numéro de téléphone</string>
+    <string name="add">Ajouter</string>
+    <string name="allow_access_to_contacts">Autoriser l\'accès aux contacts ?</string>
+    <string name="allow_access_to_contacts_description">Cela vous permet de démarrer facilement des discussions avec vos contacts</string>
+    <string name="not_now">Not Now</string>
+    <string name="allow">Allow</string>
+    <string name="no_contacts">No Contacts</string>
+    <string name="add_contacts_to_start_chatting">Add contacts to start chatting</string>
+    <string name="signal">Signal</string>
+    <string name="telegram">Telegram</string>
+    <string name="english">Anglaise</string>
+    <string name="french">Français</string>
+    <string name="user_name">Nom d\'utilisateur</string>
+    <string name="user_email">E-mail de l\'utilisateur</string>
+    <string name="free_plan">Forfait gratuit</string>
+    <string name="language">Langue</string>
+</resources>

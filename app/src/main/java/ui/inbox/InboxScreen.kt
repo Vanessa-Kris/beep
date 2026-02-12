@@ -22,14 +22,17 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.FilterNone
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import ui.components.ChatFilter
 import ui.components.ComposeSheetContent
 import ui.components.DrawerContent
 import ui.model.Platform
-import ui.settings.SettingsScreen
-
+import com.example.beep.R
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,7 +112,7 @@ fun InboxScreen(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Chats")
+                        Text(text = stringResource(R.string.chats))
                     }
                 },
                 windowInsets = TopAppBarDefaults.windowInsets,
@@ -117,7 +120,7 @@ fun InboxScreen(
                     IconButton(onClick = { scope.launch { drawerState.open() } }) {
                         Icon(
                             imageVector = Icons.Outlined.FilterNone,
-                            contentDescription = "Settings",
+                            contentDescription = (stringResource(R.string.settings)),
                             modifier = Modifier
                                 .size(20.dp)
                                 .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape),
@@ -129,7 +132,7 @@ fun InboxScreen(
                     IconButton(onClick = { /* filter */ }) {
                         Icon(
                             imageVector = Icons.Outlined.FilterList,
-                            contentDescription = "Filter",
+                            contentDescription = (stringResource(R.string.filter)),
                             modifier = Modifier
                                 .size(20.dp)
                                 .background(color = MaterialTheme.colorScheme.surface, shape = CircleShape),
@@ -153,7 +156,7 @@ fun InboxScreen(
                         TextField(
                             value = query,
                             onValueChange = { query = it },
-                            placeholder = { Text("Search chats") },
+                            placeholder = { Text(text = stringResource(R.string.search_chats)) },
                             leadingIcon = {
                                 Icon(Icons.Default.Search, contentDescription = null)
                             },
@@ -187,7 +190,7 @@ fun InboxScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Edit,
-                            contentDescription = "Compose",
+                            contentDescription = (stringResource(R.string.compose)),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
@@ -272,8 +275,32 @@ private fun InboxArchiveToggle(
     selected: Int,
     onSelect: (Int) -> Unit
 ) {
+    val inboxText = stringResource(R.string.inbox)
+    val archiveText = stringResource(R.string.archive)
+
+    val density = LocalDensity.current
+    val textMeasurer = rememberTextMeasurer()
+    val textStyle = MaterialTheme.typography.bodySmall
+
+    val inboxWidth = remember(inboxText) {
+        with(density) {
+            textMeasurer.measure(inboxText, textStyle).size.width.toDp() + 24.dp
+        }
+    }
+
+    val archiveWidth = remember(archiveText) {
+        with(density) {
+            textMeasurer.measure(archiveText, textStyle).size.width.toDp() + 24.dp
+        }
+    }
+
+    val indicatorWidth by animateDpAsState(
+        targetValue = if (selected == 0) inboxWidth else archiveWidth,
+        label = "pill_width"
+    )
+
     val indicatorOffset by animateDpAsState(
-        targetValue = if (selected == 0) 0.dp else 72.dp,
+        targetValue = if (selected == 0) 0.dp else inboxWidth,
         label = "pill_offset"
     )
 
@@ -287,7 +314,7 @@ private fun InboxArchiveToggle(
                 modifier = Modifier
                     .offset(x = indicatorOffset)
                     .padding(3.dp)
-                    .size(width = 66.dp, height = 30.dp)
+                    .size(width = indicatorWidth, height = 30.dp)
                     .background(
                         MaterialTheme.colorScheme.surface,
                         RoundedCornerShape(14.dp)
@@ -298,30 +325,32 @@ private fun InboxArchiveToggle(
                 modifier = Modifier.padding(3.dp)
             ) {
                 ToggleText(
-                    text = "Inbox",
+                    text = inboxText,
                     selected = selected == 0,
-                    onClick = { onSelect(0) }
+                    onClick = { onSelect(0) },
+                    width = inboxWidth
                 )
                 ToggleText(
-                    text = "Archive",
+                    text = archiveText,
                     selected = selected == 1,
-                    onClick = { onSelect(1) }
+                    onClick = { onSelect(1) },
+                    width = archiveWidth
                 )
             }
         }
     }
 }
 
-
 @Composable
 private fun ToggleText(
     text: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    width: Dp
 ) {
     Box(
         modifier = Modifier
-            .width(66.dp)
+            .width(width)
             .height(30.dp)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -336,6 +365,7 @@ private fun ToggleText(
         )
     }
 }
+
 
 
 

@@ -9,19 +9,29 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ui.components.AppLanguage
 import ui.components.Avatar
 import ui.components.LanguagePicker
+import ui.components.LocalLocale
 import ui.components.Platform
+import com.example.beep.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onLanguageChanged: (String) -> Unit
 ) {
-    var selectedLanguage by remember { mutableStateOf(AppLanguage.ENGLISH) }
+    val currentLocale = LocalLocale.current
+    var selectedLanguage by remember {
+        mutableStateOf(
+            AppLanguage.entries.find { it.localeTag == currentLocale }
+                ?: AppLanguage.ENGLISH
+        )
+    }
     var showLanguagePicker by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -70,12 +80,12 @@ fun SettingsScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "User Name",
+                            text = (stringResource(R.string.user_name)),
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = "user_email",
+                            text = (stringResource(R.string.user_email)),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -84,7 +94,7 @@ fun SettingsScreen(
                     Spacer(Modifier.width(8.dp))
 
                     Text(
-                        text = "free plan",
+                        text = (stringResource(R.string.free_plan)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -99,7 +109,7 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.surface
             ) {
                 Column {SettingsItem(
-                    title = "Language",
+                    title = (stringResource(R.string.language)),
                     subtitle = selectedLanguage.displayName,
                     onClick = { showLanguagePicker = true }
                 )
@@ -114,6 +124,7 @@ fun SettingsScreen(
                     selectedLanguage = selectedLanguage,
                     onLanguageSelected = { language ->
                         selectedLanguage = language
+                        onLanguageChanged(language.localeTag)
                         showLanguagePicker = false
                     }
                 )

@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -56,6 +57,7 @@ import androidx.core.content.ContextCompat
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import ui.model.Platform
 import java.util.Locale
+import com.example.beep.R
 import kotlin.compareTo
 
 data class Contact(
@@ -140,7 +142,7 @@ fun ComposeSheetContent(
             Spacer(Modifier.width(40.dp))
 
             Text(
-                text = "New message",
+                text = (stringResource(R.string.new_message)),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -154,7 +156,7 @@ fun ComposeSheetContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
+                    contentDescription = (stringResource(R.string.close)),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -181,7 +183,7 @@ fun ComposeSheetContent(
         TextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            placeholder = { Text("Search contacts") },
+            placeholder = { Text(stringResource(R.string.search_contacts)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
@@ -208,7 +210,7 @@ fun ComposeSheetContent(
                         phoneNumber = it.filter { c -> c.isDigit() }
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    placeholder = { Text("new contact") },
+                    placeholder = { Text(stringResource(R.string.phone_number)) },
                     singleLine = true,
                     leadingIcon = {
                         Row(
@@ -266,7 +268,7 @@ fun ComposeSheetContent(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Send",
+                    contentDescription = (stringResource(R.string.add)),
                     tint = if (phoneNumber.isNotBlank()) MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -293,8 +295,88 @@ fun ComposeSheetContent(
             }
 
             if (filteredContacts.isEmpty()) {
-                NoContactsView()
+                NoContactsView(
+                    phoneNumberInput = {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                TextField(
+                                    value = phoneNumber,
+                                    onValueChange = {
+                                        phoneNumber = it.filter { c -> c.isDigit() }
+                                    },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                    placeholder = { Text(stringResource(R.string.phone_number)) },
+                                    singleLine = true,
+                                    leadingIcon = {
+                                        Row(
+                                            modifier = Modifier
+                                                .clickable { showCountryPicker = true }
+                                                .padding(start = 12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = countryCodeToFlagEmoji(selectedCountry.regionCode),
+                                                fontSize = 18.sp
+                                            )
+
+                                            Spacer(Modifier.width(6.dp))
+
+                                            Text(
+                                                text = "+${selectedCountry.callingCode}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 44.dp),
+                                    shape = RoundedCornerShape(24.dp),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            IconButton(
+                                onClick = {
+                                    if (phoneNumber.isNotBlank()) {
+                                        val fullNumber = "+${selectedCountry.callingCode}$phoneNumber"
+                                        val parsed = parsePhone(fullNumber, selectedCountry)
+                                        if (parsed != null) {
+                                            onStartChat(parsed)
+                                        }
+                                    }
+                                },
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(
+                                        if (phoneNumber.isNotBlank()) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                                        CircleShape
+                                    ),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = stringResource(R.string.add),
+                                    tint = if (phoneNumber.isNotBlank()) MaterialTheme.colorScheme.onPrimary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                )
             } else {
+
                 ContactsList(
                     contacts = filteredContacts,
                     onContactClick = { contact ->
@@ -449,7 +531,7 @@ private fun ContactsPermissionPrompt(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Allow access to contacts?",
+            text = (stringResource(R.string.allow_access_to_contacts)),
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center
         )
@@ -457,7 +539,7 @@ private fun ContactsPermissionPrompt(
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text = "This lets you easily start chats with your contacts",
+            text = (stringResource(R.string.allow_access_to_contacts_description)),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -479,25 +561,32 @@ private fun ContactsPermissionPrompt(
 }
 
 @Composable
-private fun NoContactsView() {
+private fun NoContactsView(
+    phoneNumberInput: @Composable () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 48.dp),
+            .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "No contacts",
+            text = stringResource(R.string.no_contacts),
             style = MaterialTheme.typography.titleMedium
         )
 
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text = "Add contacts to start chatting",
+            text = stringResource(R.string.add_contacts_to_start_chatting),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
+
+        Spacer(Modifier.height(16.dp))
+
+        phoneNumberInput()
     }
 }
 
