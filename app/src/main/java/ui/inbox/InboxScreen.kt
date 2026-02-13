@@ -47,8 +47,6 @@ fun InboxScreen(
     val sheetState = rememberModalBottomSheetState()
     var selectedTab by remember { mutableStateOf(0) }
     var selectedFilter by remember { mutableStateOf(ChatFilter.ALL_CHATS) }
-    var showSettingsSheet by remember { mutableStateOf(false) }
-    val settingsSheetState = rememberModalBottomSheetState()
 
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -57,14 +55,13 @@ fun InboxScreen(
     var threads by remember {
         mutableStateOf(
             listOf(
-        Thread("Kehinde Omobaba", "Check your mails asap", "Yesterday", Platform.SIGNAL),
-        Thread("Alice", "Hey, how are you?", "09:45AM", Platform.SIGNAL),
-        Thread("Bob", "See you later", "9:00AM", Platform.TELEGRAM),
-        Thread("Mom", "Call me pls", "6:00AM", Platform.TELEGRAM),
-        Thread("Yaya", "I could have never guessed ...", "Yesterday", Platform.SIGNAL),
-        Thread("Yager", "Change up quickly", "Yesterday", Platform.TELEGRAM),
-        Thread("Max", "We scheduled it for April 13th", "Saturday", Platform.TELEGRAM),
-        Thread("Will Byers", "I've literally been missing for 2 months", "Friday", Platform.SIGNAL),
+                Thread("Kehinde Omobaba", "Check your mails asap", R.string.yesterday, null, Platform.SIGNAL),
+                Thread("Alice", "Hey, how are you?", null, "09:45AM", Platform.SIGNAL),
+                Thread("Bob", "See you later", null, "9:00AM", Platform.TELEGRAM),
+                Thread("Yaya", "Guess what...", R.string.yesterday, null, Platform.SIGNAL),
+                Thread("Yager", "Change up quickly", R.string.yesterday, null,  Platform.TELEGRAM),
+                Thread("Max", "We scheduled it for April 13th", R.string.saturday, null, Platform.TELEGRAM),
+                Thread("Will Byers", "I've literally been missing for 2 months", R.string.friday, null, Platform.SIGNAL),
             )
         )
     }
@@ -117,7 +114,8 @@ fun InboxScreen(
                 },
                 windowInsets = TopAppBarDefaults.windowInsets,
                 navigationIcon = {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                    IconButton(onClick = { println("DEBUG: Drawer icon clicked")
+                        scope.launch { drawerState.open() } }) {
                         Icon(
                             imageVector = Icons.Outlined.FilterNone,
                             contentDescription = (stringResource(R.string.settings)),
@@ -239,7 +237,8 @@ fun InboxScreen(
                         ThreadItem(
                             name = thread.name,
                             lastMessage = thread.lastMessage,
-                            time = thread.time,
+                            time = thread.time?.let { stringResource(it) }
+                                ?: thread.timeText.orEmpty(),
                             platform = thread.platform,
                             onClick = { onThreadClick(thread.name) },
                             onDelete = {
@@ -282,24 +281,30 @@ private fun InboxArchiveToggle(
     val textMeasurer = rememberTextMeasurer()
     val textStyle = MaterialTheme.typography.bodySmall
 
+    val horizontalPadding = 12.dp
+
     val inboxWidth = remember(inboxText) {
         with(density) {
-            textMeasurer.measure(inboxText, textStyle).size.width.toDp() + 24.dp
+            textMeasurer.measure(inboxText, textStyle).size.width.toDp() +
+                    horizontalPadding * 2
         }
     }
 
     val archiveWidth = remember(archiveText) {
         with(density) {
-            textMeasurer.measure(archiveText, textStyle).size.width.toDp() + 24.dp
+            textMeasurer.measure(archiveText, textStyle).size.width.toDp() +
+                    horizontalPadding * 2
         }
     }
 
     val indicatorWidth by animateDpAsState(
-        targetValue = if (selected == 0) inboxWidth else archiveWidth,
-        label = "pill_width"
+        targetValue = if (selected == 0)
+            inboxWidth
+        else
+            archiveWidth,
     )
 
-    val indicatorOffset by animateDpAsState(
+        val indicatorOffset by animateDpAsState(
         targetValue = if (selected == 0) 0.dp else inboxWidth,
         label = "pill_offset"
     )
@@ -309,11 +314,10 @@ private fun InboxArchiveToggle(
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = Modifier.wrapContentWidth()
     ) {
-        Box {
+        Box (modifier = Modifier.padding(3.dp))  {
             Box(
                 modifier = Modifier
                     .offset(x = indicatorOffset)
-                    .padding(3.dp)
                     .size(width = indicatorWidth, height = 30.dp)
                     .background(
                         MaterialTheme.colorScheme.surface,
@@ -322,7 +326,7 @@ private fun InboxArchiveToggle(
             )
 
             Row(
-                modifier = Modifier.padding(3.dp)
+
             ) {
                 ToggleText(
                     text = inboxText,
@@ -372,6 +376,7 @@ private fun ToggleText(
 data class Thread(
     val name: String,
     val lastMessage: String,
-    val time: String,
+    val time: Int?,
+    val timeText: String?,
     val platform: Platform
 )
