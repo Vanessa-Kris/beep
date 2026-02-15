@@ -33,6 +33,10 @@ import com.example.beep.R
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.text.input.ImeAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,13 +59,14 @@ fun InboxScreen(
     var threads by remember {
         mutableStateOf(
             listOf(
-                Thread("Kehinde Omobaba", "Check your mails asap", R.string.yesterday, null, Platform.SIGNAL),
-                Thread("Alice", "Hey, how are you?", null, "09:45AM", Platform.SIGNAL),
-                Thread("Bob", "See you later", null, "9:00AM", Platform.TELEGRAM),
-                Thread("Yaya", "Guess what...", R.string.yesterday, null, Platform.SIGNAL),
-                Thread("Yager", "Change up quickly", R.string.yesterday, null,  Platform.TELEGRAM),
-                Thread("Max", "We scheduled it for April 13th", R.string.saturday, null, Platform.TELEGRAM),
-                Thread("Will Byers", "I've literally been missing for 2 months", R.string.friday, null, Platform.SIGNAL),
+                Thread(1, "Kehinde Omobaba", "Check your mails asap", R.string.yesterday, null, Platform.SIGNAL),
+                Thread(2, "Alice", "Hey, how are you?", null, "09:45AM", Platform.SIGNAL),
+                Thread(3, "Bob", "See you later", null, "9:00AM", Platform.TELEGRAM),
+                Thread(4, "Yaya", "Guess what...", R.string.yesterday, null, Platform.SIGNAL),
+                Thread(5, "Yager", "Change up quickly", R.string.yesterday, null,  Platform.TELEGRAM),
+                Thread(6, "Alice", "Hey, you are home?", R.string.saturday, null, Platform.SIGNAL),
+                Thread(7, "Max", "We scheduled it for April 13th", R.string.saturday, null, Platform.TELEGRAM),
+                Thread(8, "Will Byers", "I've literally been missing for 2 months", R.string.friday, null, Platform.SIGNAL),
             )
         )
     }
@@ -146,7 +151,7 @@ fun InboxScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .windowInsetsPadding(WindowInsets.navigationBars)
+                        .windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars))
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -162,6 +167,10 @@ fun InboxScreen(
                             textStyle = MaterialTheme.typography.bodyMedium.copy(
                                 lineHeight = 18.sp
                             ),
+//                            keyboardOptions = KeyboardOptions(
+//                                keyboardType = KeyboardType.Text,
+//                                imeAction = ImeAction.Search
+//                            ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .heightIn(min = 44.dp),
@@ -232,7 +241,7 @@ fun InboxScreen(
                 ) {
                     items(
                         filteredThreads,
-                        key = { it.name }
+                        key = { thread -> thread.id }
                     ) { thread ->
                         ThreadItem(
                             name = thread.name,
@@ -255,7 +264,7 @@ fun InboxScreen(
         ModalBottomSheet(
             onDismissRequest = { showComposeSheet = false },
             sheetState = sheetState,
-            modifier = Modifier.fillMaxHeight(0.75f)
+            modifier = Modifier.fillMaxHeight()
         ) {
             ComposeSheetContent(
                 onStartChat = { name ->
@@ -374,6 +383,7 @@ private fun ToggleText(
 
 
 data class Thread(
+    val id: Int,
     val name: String,
     val lastMessage: String,
     val time: Int?,

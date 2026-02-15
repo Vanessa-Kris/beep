@@ -40,8 +40,9 @@ fun MessageInput(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.Bottom,
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars)),
+    verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         TextField(
